@@ -11,6 +11,7 @@ import {
   Lightbulb, 
   ShieldCheck, 
   ChevronRight,
+  Target,
   Sparkles,
   Award,
   Truck,
@@ -23,6 +24,7 @@ import {
 const navigation = [
   { name: 'Dashboard Executivo', href: '/dashboard', icon: LayoutDashboard },
   { name: 'Central de Ideias', href: '/ideas', icon: Lightbulb },
+  { name: 'Roadmap & Tarefas', href: '/roadmap', icon: Target },
   { name: 'Pipeline (Kanban)', href: '/pipeline', icon: Kanban },
   { name: 'Catálogo & Preços', href: '/catalog', icon: ShoppingBag },
   { name: 'Gestão de Produção (PLM)', href: '/products', icon: Layers },
