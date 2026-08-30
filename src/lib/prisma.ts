@@ -784,31 +784,27 @@ export const kitService = {
 
 export const orderService = {
   async getAllOrders(): Promise<Order[]> {
-    try {
-      if (process.env.DATABASE_URL) {
-        const dbOrders = await prisma.order.findMany({
-          include: {
-            items: {
-              include: {
-                product: true,
-                kit: {
-                  include: {
-                    items: {
-                      include: {
-                        product: true
-                      }
+    if (process.env.DATABASE_URL) {
+      const dbOrders = await prisma.order.findMany({
+        include: {
+          items: {
+            include: {
+              product: true,
+              kit: {
+                include: {
+                  items: {
+                    include: {
+                      product: true
                     }
                   }
                 }
               }
             }
-          },
-          orderBy: { createdAt: 'desc' }
-        });
-        return dbOrders as unknown as Order[];
-      }
-    } catch (err) {
-      console.warn('Prisma DB error in getAllOrders, falling back to memory.');
+          }
+        },
+        orderBy: { createdAt: 'desc' }
+      });
+      return dbOrders as unknown as Order[];
     }
     return memoryOrdersStore.map(o => ({
       ...o,
@@ -845,40 +841,36 @@ export const orderService = {
       updatedAt: now
     };
 
-    try {
-      if (process.env.DATABASE_URL) {
-        const dbOrder = await prisma.order.create({
-          data: {
-            customerName: input.customerName,
-            customerPhone: input.customerPhone,
-            customerEmail: input.customerEmail,
-            totalAmount: input.totalAmount,
-            paymentStatus: input.paymentStatus || 'PENDENTE',
-            receiptUrl: input.receiptUrl,
-            notes: input.notes,
-            items: {
-              create: input.items.map(item => ({
-                productId: item.productId || undefined,
-                kitId: item.kitId || undefined,
-                size: item.size || undefined,
-                unitPrice: item.unitPrice,
-                quantity: item.quantity
-              }))
-            }
-          },
-          include: {
-            items: {
-              include: {
-                product: true,
-                kit: true
-              }
+    if (process.env.DATABASE_URL) {
+      const dbOrder = await prisma.order.create({
+        data: {
+          customerName: input.customerName,
+          customerPhone: input.customerPhone,
+          customerEmail: input.customerEmail,
+          totalAmount: input.totalAmount,
+          paymentStatus: input.paymentStatus || 'PENDENTE',
+          receiptUrl: input.receiptUrl,
+          notes: input.notes,
+          items: {
+            create: input.items.map(item => ({
+              productId: item.productId || undefined,
+              kitId: item.kitId || undefined,
+              size: item.size || undefined,
+              unitPrice: item.unitPrice,
+              quantity: item.quantity
+            }))
+          }
+        },
+        include: {
+          items: {
+            include: {
+              product: true,
+              kit: true
             }
           }
-        });
-        return dbOrder as unknown as Order;
-      }
-    } catch (err) {
-      console.warn('Prisma DB error in createOrder, falling back to memory.');
+        }
+      });
+      return dbOrder as unknown as Order;
     }
 
     memoryOrdersStore.push(newOrder);
@@ -894,24 +886,20 @@ export const orderService = {
 
   async updateOrderStatus(id: string, paymentStatus: string): Promise<Order | null> {
     const now = new Date().toISOString();
-    try {
-      if (process.env.DATABASE_URL) {
-        const dbOrder = await prisma.order.update({
-          where: { id },
-          data: { paymentStatus },
-          include: {
-            items: {
-              include: {
-                product: true,
-                kit: true
-              }
+    if (process.env.DATABASE_URL) {
+      const dbOrder = await prisma.order.update({
+        where: { id },
+        data: { paymentStatus },
+        include: {
+          items: {
+            include: {
+              product: true,
+              kit: true
             }
           }
-        });
-        return dbOrder as unknown as Order;
-      }
-    } catch (err) {
-      console.warn('Prisma DB error in updateOrderStatus, falling back to memory.');
+        }
+      });
+      return dbOrder as unknown as Order;
     }
 
     const idx = memoryOrdersStore.findIndex(o => o.id === id);
@@ -935,24 +923,20 @@ export const orderService = {
 
   async updateOrderReceipt(id: string, receiptUrl: string): Promise<Order | null> {
     const now = new Date().toISOString();
-    try {
-      if (process.env.DATABASE_URL) {
-        const dbOrder = await prisma.order.update({
-          where: { id },
-          data: { receiptUrl, paymentStatus: 'AGUARDANDO_VALIDACAO' },
-          include: {
-            items: {
-              include: {
-                product: true,
-                kit: true
-              }
+    if (process.env.DATABASE_URL) {
+      const dbOrder = await prisma.order.update({
+        where: { id },
+        data: { receiptUrl, paymentStatus: 'AGUARDANDO_VALIDACAO' },
+        include: {
+          items: {
+            include: {
+              product: true,
+              kit: true
             }
           }
-        });
-        return dbOrder as unknown as Order;
-      }
-    } catch (err) {
-      console.warn('Prisma DB error in updateOrderReceipt, falling back to memory.');
+        }
+      });
+      return dbOrder as unknown as Order;
     }
 
     const idx = memoryOrdersStore.findIndex(o => o.id === id);
@@ -976,13 +960,9 @@ export const orderService = {
   },
 
   async deleteOrder(id: string): Promise<boolean> {
-    try {
-      if (process.env.DATABASE_URL) {
-        await prisma.order.delete({ where: { id } });
-        return true;
-      }
-    } catch (err) {
-      console.warn('Prisma DB error in deleteOrder, falling back to memory.');
+    if (process.env.DATABASE_URL) {
+      await prisma.order.delete({ where: { id } });
+      return true;
     }
     const len = memoryOrdersStore.length;
     memoryOrdersStore = memoryOrdersStore.filter(o => o.id !== id);

@@ -1,6 +1,9 @@
 import { NextResponse } from 'next/server';
 import { orderService, productService, kitService } from '@/lib/prisma';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export async function POST(req: Request) {
   try {
     // 1. Validação de Segurança (Header x-webhook-secret)
