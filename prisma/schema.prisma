@@ -60,9 +60,10 @@ model Product {
   categoryId           String?
   categoryRel          Category?     @relation(fields: [categoryId], references: [id], onDelete: SetNull)
 
-  sizes      ProductSize[]
-  kitItems   KitItem[]
-  orderItems OrderItem[]
+  sizes        ProductSize[]
+  kitItems     KitItem[]
+  orderItems   OrderItem[]
+  supplierQuotes SupplierQuote[]
 
   @@map("products")
 }
@@ -218,4 +219,24 @@ model User {
   deliveries Order[] @relation("OrderDeliveries")
 
   @@map("users")
+}
+
+model SupplierQuote {
+  id            String   @id @default(uuid())
+  productId     String
+  product       Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  supplierName  String
+  contact       String?
+  unitPrice     Float
+  moq           Int      @default(50)
+  sampleCost    Float    @default(0.0)
+  shippingCost  Float    @default(0.0)
+  leadTimeDays  Int      @default(15)
+  qualityRating Int      @default(5)
+  notes         String?  @db.Text
+  isSelected    Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("supplier_quotes_v2")
 }

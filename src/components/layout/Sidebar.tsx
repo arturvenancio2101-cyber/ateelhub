@@ -15,7 +15,8 @@ import {
   Award,
   Truck,
   Receipt,
-  Package
+  Package,
+  Building
 } from 'lucide-react';
 
 const navigation = [
@@ -26,7 +27,8 @@ const navigation = [
   { name: 'Kits & Combos', href: '/kits', icon: Sparkles },
   { name: 'Controle de Estoque', href: '/inventory', icon: Package },
   { name: 'Pedidos & Financeiro', href: '/orders', icon: Receipt },
-  { name: 'Fornecedores & Cotações', href: '/suppliers', icon: Truck },
+  { name: 'Base de Fornecedores', href: '/suppliers', icon: Truck },
+  { name: 'Comparativo Cotações', href: '/quotes', icon: Building },
   { name: 'Importar / Exportar', href: '/import-export', icon: FileSpreadsheet },
 ];
 

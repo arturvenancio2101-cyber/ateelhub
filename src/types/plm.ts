@@ -55,6 +55,7 @@ export interface Product {
   categoryId?: string | null;
   categoryRel?: Category | null;
   sizes?: ProductSize[];
+  supplierQuotes?: SupplierQuote[];
 }
 
 export interface Supplier {
@@ -233,6 +234,35 @@ export interface CreateKitInput {
   items: { productId: string; quantity: number }[];
 }
 
+export interface SupplierQuote {
+  id: string;
+  productId: string;
+  supplierName: string;
+  contact?: string;
+  unitPrice: number;
+  moq: number;
+  sampleCost: number;
+  shippingCost: number;
+  leadTimeDays: number;
+  qualityRating: number;
+  notes?: string;
+  isSelected: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateSupplierQuoteInput {
+  productId: string;
+  supplierName: string;
+  contact?: string;
+  unitPrice: number;
+  moq?: number;
+  sampleCost?: number;
+  shippingCost?: number;
+  leadTimeDays?: number;
+  qualityRating?: number;
+  notes?: string;
+}
 export interface CreateOrderInput {
   customerName: string;
   customerPhone: string;

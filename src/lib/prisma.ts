@@ -157,7 +157,7 @@ export const productService = {
 
         const dbProducts = await prisma.product.findMany({
           where,
-          include: { sizes: true },
+          include: { sizes: true, supplierQuotes: true },
           orderBy: { updatedAt: 'desc' }
         });
 
@@ -190,7 +190,7 @@ export const productService = {
       if (process.env.DATABASE_URL) {
         const dbProduct = await prisma.product.findUnique({
           where: { id },
-          include: { sizes: true }
+          include: { sizes: true, supplierQuotes: true }
         });
         if (dbProduct) return dbProduct as unknown as Product;
       }
