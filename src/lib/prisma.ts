@@ -959,6 +959,31 @@ export const orderService = {
     return null;
   },
 
+  async updateOrderDelivery(id: string, deliveryStatus: string, deliveredById?: string, pickedUpBy?: string): Promise<Order | null> {
+    if (process.env.DATABASE_URL) {
+      const data: any = { deliveryStatus };
+      if (deliveryStatus === 'DELIVERED') {
+        data.deliveredAt = new Date();
+        data.deliveredById = deliveredById;
+        data.pickedUpBy = pickedUpBy;
+      }
+      const dbOrder = await prisma.order.update({
+        where: { id },
+        data,
+        include: {
+          items: {
+            include: {
+              product: true,
+              kit: true
+            }
+          }
+        }
+      });
+      return dbOrder as unknown as Order;
+    }
+    return null;
+  },
+
   async deleteOrder(id: string): Promise<boolean> {
     if (process.env.DATABASE_URL) {
       await prisma.order.delete({ where: { id } });

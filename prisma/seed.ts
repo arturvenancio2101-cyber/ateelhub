@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client';
+import bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
 
@@ -251,6 +252,19 @@ async function main() {
     data: [
       { productId: p3.id, sizeName: 'ÚNICO', quantityPreOrder: 50, quantityStock: 120 }
     ]
+  });
+
+  console.log('Semeando usuário admin...');
+  const hashedPassword = await bcrypt.hash('admin123', 10);
+  await prisma.user.upsert({
+    where: { email: 'admin@ateel.com.br' },
+    update: {},
+    create: {
+      name: 'Admin ATEEL',
+      email: 'admin@ateel.com.br',
+      password: hashedPassword,
+      role: 'ADMIN',
+    },
   });
 
   console.log('Seed do ATEEL Products Hub concluído com sucesso!');

@@ -158,6 +158,13 @@ model Order {
   paymentStatus   String      @default("PENDENTE") // PENDENTE, AGUARDANDO_VALIDACAO, PAGO
   receiptUrl      String?     // Link/Arquivo do comprovante Pix
   notes           String?     @db.Text
+
+  deliveryStatus  String      @default("PENDING") // PENDING, READY_FOR_PICKUP, DELIVERED
+  deliveredAt     DateTime?
+  deliveredById   String?
+  deliveredBy     User?       @relation("OrderDeliveries", fields: [deliveredById], references: [id])
+  pickedUpBy      String?
+
   items           OrderItem[]
   createdAt       DateTime    @default(now())
   updatedAt       DateTime    @updatedAt
@@ -192,4 +199,23 @@ model IdeaVote {
   createdAt      DateTime @default(now())
 
   @@map("idea_votes")
+}
+
+enum Role {
+  ADMIN
+  USER
+}
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String
+  role      Role     @default(USER)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  deliveries Order[] @relation("OrderDeliveries")
+
+  @@map("users")
 }

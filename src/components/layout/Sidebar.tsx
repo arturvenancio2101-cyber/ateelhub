@@ -14,7 +14,8 @@ import {
   Sparkles,
   Award,
   Truck,
-  Receipt
+  Receipt,
+  Package
 } from 'lucide-react';
 
 const navigation = [
@@ -23,6 +24,7 @@ const navigation = [
   { name: 'Pipeline (Kanban)', href: '/pipeline', icon: Kanban },
   { name: 'Catálogo de Produtos', href: '/products', icon: Layers },
   { name: 'Kits & Combos', href: '/kits', icon: Sparkles },
+  { name: 'Controle de Estoque', href: '/inventory', icon: Package },
   { name: 'Pedidos & Financeiro', href: '/orders', icon: Receipt },
   { name: 'Fornecedores & Cotações', href: '/suppliers', icon: Truck },
   { name: 'Importar / Exportar', href: '/import-export', icon: FileSpreadsheet },

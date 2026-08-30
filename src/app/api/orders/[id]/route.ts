@@ -11,6 +11,8 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
       updated = await orderService.updateOrderStatus(id, body.paymentStatus);
     } else if ('receiptUrl' in body) {
       updated = await orderService.updateOrderReceipt(id, body.receiptUrl);
+    } else if ('deliveryStatus' in body) {
+      updated = await orderService.updateOrderDelivery(id, body.deliveryStatus, body.deliveredById, body.pickedUpBy);
     } else {
       return NextResponse.json({ success: false, error: 'Ação não suportada.' }, { status: 400 });
     }

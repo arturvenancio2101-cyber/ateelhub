@@ -202,6 +202,12 @@ export interface Order {
   paymentStatus: string; // PENDENTE, AGUARDANDO_VALIDACAO, PAGO
   receiptUrl?: string | null;
   notes?: string | null;
+  
+  deliveryStatus?: string;
+  deliveredAt?: string | null;
+  deliveredById?: string | null;
+  pickedUpBy?: string | null;
+
   items?: OrderItem[];
   createdAt: string;
   updatedAt: string;

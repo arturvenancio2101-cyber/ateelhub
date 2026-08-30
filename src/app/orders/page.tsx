@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
+import { useSession } from 'next-auth/react';
 import { Order, Product, Kit } from '@/types/plm';
 import { 
   Receipt, 
@@ -30,10 +31,16 @@ import { formatCurrency } from '@/lib/utils';
 import GoogleFormsIntegrationModal from '@/components/orders/GoogleFormsIntegrationModal';
 
 export default function OrdersPage() {
+  const { data: session } = useSession();
   const [orders, setOrders] = useState<Order[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [kits, setKits] = useState<Kit[]>([]);
   const [loading, setLoading] = useState(true);
+  
+  // Delivery State
+  const [showDeliveryModal, setShowDeliveryModal] = useState(false);
+  const [selectedOrderForDelivery, setSelectedOrderForDelivery] = useState<Order | null>(null);
+  const [pickedUpBy, setPickedUpBy] = useState('');
   
   // Search & Filter
   const [searchTerm, setSearchTerm] = useState('');
@@ -252,6 +259,44 @@ export default function OrdersPage() {
           setSelectedOrderForReceipt(json.data);
         }
       }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  // Delivery Actions
+  const handleRegisterDelivery = async () => {
+    if (!selectedOrderForDelivery || !pickedUpBy) return;
+    try {
+      const res = await fetch(`/api/orders/${selectedOrderForDelivery.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          deliveryStatus: 'DELIVERED',
+          deliveredById: session?.user?.id,
+          pickedUpBy: pickedUpBy
+        })
+      });
+      const json = await res.json();
+      if (json.success) {
+        setShowDeliveryModal(false);
+        setPickedUpBy('');
+        loadData();
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleSetReadyForPickup = async (orderId: string) => {
+    try {
+      const res = await fetch(`/api/orders/${orderId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ deliveryStatus: 'READY_FOR_PICKUP' })
+      });
+      const json = await res.json();
+      if (json.success) loadData();
     } catch (err) {
       console.error(err);
     }
@@ -669,6 +714,7 @@ export default function OrdersPage() {
                 <th className="p-3">Tamanhos</th>
                 <th className="p-3 font-mono text-right">Total</th>
                 <th className="p-3 text-center">Status Pix</th>
+                <th className="p-3 text-center">Entrega</th>
                 <th className="p-3 text-center">Comprovante</th>
                 <th className="p-3 text-right">Ações</th>
               </tr>
@@ -755,6 +801,33 @@ export default function OrdersPage() {
                         }`}>
                           {isPaid ? 'CONFIRMADO' : isAwaiting ? 'AGUARDANDO VALID.' : 'PENDENTE'}
                         </span>
+                      </td>
+
+                      {/* Delivery Status */}
+                      <td className="p-3 text-center">
+                        {order.deliveryStatus === 'DELIVERED' ? (
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[9px] font-bold border bg-blue-500/10 text-blue-400 border-blue-500/20" title={`Retirado por: ${order.pickedUpBy}`}>
+                            ENTREGUE
+                          </span>
+                        ) : order.deliveryStatus === 'READY_FOR_PICKUP' ? (
+                          <button
+                            onClick={() => { setSelectedOrderForDelivery(order); setShowDeliveryModal(true); }}
+                            className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[9px] font-bold border bg-amber-500/10 text-amber-400 border-amber-500/20 hover:bg-amber-500/20 transition-all cursor-pointer"
+                          >
+                            PRONTO PARA RETIRADA
+                          </button>
+                        ) : isPaid ? (
+                          <button
+                            onClick={() => handleSetReadyForPickup(order.id)}
+                            className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[9px] font-bold border bg-zinc-800 text-zinc-400 border-zinc-700 hover:bg-zinc-700 hover:text-white transition-all cursor-pointer"
+                          >
+                            SEPARAR
+                          </button>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[9px] font-bold border bg-zinc-800/50 text-zinc-600 border-zinc-800/50">
+                            -
+                          </span>
+                        )}
                       </td>
 
                       {/* Comprovante */}
@@ -1143,6 +1216,57 @@ export default function OrdersPage() {
         isOpen={showWebhookModal} 
         onClose={() => setShowWebhookModal(false)} 
       />
+
+      {/* MODAL 4: DELIVERY CONFIRMATION */}
+      {showDeliveryModal && selectedOrderForDelivery && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+          <div className="bg-zinc-950 border border-border rounded-xl max-w-sm w-full overflow-hidden shadow-2xl animate-in zoom-in-95 duration-150">
+            <div className="flex items-center justify-between p-4 border-b border-border bg-secondary/30">
+              <h3 className="font-bold text-foreground text-sm">Registrar Retirada</h3>
+              <button 
+                onClick={() => { setShowDeliveryModal(false); setPickedUpBy(''); }}
+                className="p-1 rounded-lg text-muted-foreground hover:bg-secondary hover:text-foreground"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <div className="p-4 space-y-4">
+              <div>
+                <label className="block text-sm font-semibold text-zinc-300 mb-1">Quem está retirando o pedido?</label>
+                <p className="text-[10px] text-zinc-500 mb-3">Nome da pessoa que está pegando os itens presencialmente.</p>
+                <input
+                  type="text"
+                  placeholder="Nome de quem retirou"
+                  value={pickedUpBy}
+                  onChange={(e) => setPickedUpBy(e.target.value)}
+                  className="w-full px-3 py-2 rounded-lg bg-secondary border border-border text-foreground focus:ring-2 focus:ring-primary/50 focus:outline-none"
+                  autoFocus
+                />
+              </div>
+              
+              <div className="text-[10px] text-zinc-400 bg-zinc-900 p-2 rounded border border-zinc-800">
+                <span className="block font-bold mb-1">Itens deste pedido:</span>
+                <ul className="list-disc pl-4">
+                  {(selectedOrderForDelivery.items || []).map((i: any, idx: number) => {
+                    const prodName = i.product?.name || i.kit?.name || 'Item';
+                    return <li key={idx}>{prodName} ({i.size}) x{i.quantity}</li>;
+                  })}
+                </ul>
+              </div>
+
+              <button
+                type="button"
+                onClick={handleRegisterDelivery}
+                disabled={!pickedUpBy}
+                className="w-full py-2.5 rounded-lg bg-blue-500 hover:bg-blue-600 text-white font-bold transition duration-150 flex items-center justify-center gap-1.5 shadow disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <Package className="w-4 h-4 text-white" />
+                <span>Confirmar Entrega</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   );
