@@ -240,3 +240,37 @@ model SupplierQuote {
 
   @@map("supplier_quotes_v2")
 }
+
+model KanbanItem {
+  id            String      @id @default(uuid())
+  title         String
+  description   String?     @db.Text
+  stage         KanbanStage @default(IDEA)
+  priority      Priority    @default(MEDIUM)
+  isWeeklyFocus Boolean     @default(false)
+  assignedTo    String?
+  dueDate       DateTime?
+  checklist     Json?
+  productId     String?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  @@map("kanban_items")
+}
+
+enum KanbanStage {
+  IDEA
+  DESIGN
+  QUOTATION
+  PRE_SALE
+  PRODUCTION
+  PICKUP
+  DONE
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}

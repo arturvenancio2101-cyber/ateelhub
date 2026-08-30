@@ -288,3 +288,33 @@ export interface CreateVoteInput {
   preferredSize?: string;
 }
 
+export type KanbanStage = 'IDEA' | 'DESIGN' | 'QUOTATION' | 'PRE_SALE' | 'PRODUCTION' | 'PICKUP' | 'DONE';
+export type Priority = 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
+
+export interface KanbanItem {
+  id: string;
+  title: string;
+  description?: string | null;
+  stage: KanbanStage;
+  priority: Priority;
+  isWeeklyFocus: boolean;
+  assignedTo?: string | null;
+  dueDate?: string | null;
+  checklist?: { text: string; done: boolean }[] | null;
+  productId?: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateKanbanItemInput {
+  title: string;
+  description?: string;
+  stage?: KanbanStage;
+  priority?: Priority;
+  isWeeklyFocus?: boolean;
+  assignedTo?: string;
+  dueDate?: string;
+  checklist?: { text: string; done: boolean }[];
+  productId?: string;
+}
+
