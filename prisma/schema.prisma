@@ -1,0 +1,195 @@
+// Schema Prisma para ATEEL Products Hub (Gestão de Produtos, Vestuário, Merchandising e Fornecedores)
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Idea {
+  id          String   @id @default(uuid())
+  title       String
+  description String?  @db.Text
+  category    String   // ex: Camiseta, Samba-canção, Caneca
+  imageUrl    String?
+  votesCount  Int      @default(0)
+  createdBy   String?  @default("Diretoria")
+  status      String   @default("Em Análise") // Em Análise, Aprovada, Descartada
+  productId   String?  // ID do produto correspondente se convertida
+  votes       IdeaVote[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("ideas")
+}
+
+model Category {
+  id          String         @id @default(uuid())
+  name        String         @unique // Ex: Camiseta, Samba-canção, Meia, Tirante, Caneca, Moletom, Bucket Hat
+  description String?        @db.Text
+  quotes      ProductQuote[]
+  products    Product[]
+  createdAt   DateTime       @default(now())
+
+  @@map("categories")
+}
+
+model Product {
+  id                   String        @id @default(uuid())
+  name                 String
+  slug                 String        @unique
+  sku                  String        @unique
+  category             String        // Categoria legada (Camiseta, Samba-canção, Meia, Jersey, Caneca, Tirante, Moletom, Outro)
+  status               String        // Briefing, Design, Cotação, Pré-Venda, Em Produção, Estoque, Encerrado
+  description          String?       @db.Text
+  coverImageUrl        String?
+  images               Json?         // Múltiplos mockups ou fotos (frente/costas/detalhes)
+  fabricType           String?       // ex: Dry-fit, Algodão Penteado, Tactel
+  printTechnique       String?       // ex: Sublimação, Silk-screen, Bordado
+  supplierName         String?
+  supplierLeadTimeDays Int           @default(0)
+  targetDeliveryDate   DateTime?
+  costPrice            Float         @default(0.0) // Custo de Confecção unitário
+  memberPrice          Float         @default(0.0) // Preço de Venda Sócio
+  nonMemberPrice       Float         @default(0.0) // Preço de Venda Não-Sócio
+  createdAt            DateTime      @default(now())
+  updatedAt            DateTime      @updatedAt
+
+  categoryId           String?
+  categoryRel          Category?     @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+
+  sizes      ProductSize[]
+  kitItems   KitItem[]
+  orderItems OrderItem[]
+
+  @@map("products")
+}
+
+model ProductSize {
+  id               String   @id @default(uuid())
+  productId        String
+  product          Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  sizeName         String   // PP, P, M, G, GG, XGG, ÚNICO
+  quantityPreOrder Int      @default(0)
+  quantityStock    Int      @default(0)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@map("product_sizes")
+}
+
+model Supplier {
+  id           String         @id @default(uuid())
+  name         String
+  contactName  String?
+  phone        String?        // WhatsApp link direct
+  email        String?
+  cityState    String?        // Brusque/SC, Blumenau/SC, etc
+  pixKey       String?
+  paymentTerms String?
+  rating       Int            @default(5) // 1 a 5 estrelas
+  notes        String?        @db.Text
+  quotes       ProductQuote[]
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
+  @@map("suppliers")
+}
+
+model ProductQuote {
+  id             String      @id @default(uuid())
+  productName    String
+  categoryId     String
+  category       Category    @relation(fields: [categoryId], references: [id])
+  supplierId     String
+  supplier       Supplier    @relation(fields: [supplierId], references: [id], onDelete: Cascade)
+  unitCost       Float       // Custo unitário em R$
+  minQuantity    Int         @default(50) // Quantidade Mínima (MOQ)
+  leadTimeDays   Int         // Prazo de produção em dias úteis
+  materialSpecs  String?     // Ex: Algodão 30.1 penteado, Cetim c/ elastano, Microfibra
+  printTechnique String?     // Ex: Silk screen, Sublimação total HD, Jacquard, Bordado
+  status         QuoteStatus @default(EM_ANALISE)
+  notes          String?     @db.Text
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+
+  @@map("product_quotes")
+}
+
+enum QuoteStatus {
+  APROVADO
+  EM_ANALISE
+  RECUSADO
+}
+
+model Kit {
+  id              String      @id @default(uuid())
+  name            String
+  description     String?     @db.Text
+  imageUrl        String?
+  memberPrice     Float
+  nonMemberPrice  Float
+  items           KitItem[]
+  orders          OrderItem[]
+  createdAt       DateTime    @default(now())
+
+  @@map("kits")
+}
+
+model KitItem {
+  id        String   @id @default(uuid())
+  kitId     String
+  kit       Kit      @relation(fields: [kitId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product  @relation(fields: [productId], references: [id])
+  quantity  Int      @default(1)
+
+  @@map("kit_items")
+}
+
+model Order {
+  id              String      @id @default(uuid())
+  customerName    String
+  customerPhone   String
+  customerEmail   String?
+  totalAmount     Float
+  paymentStatus   String      @default("PENDENTE") // PENDENTE, AGUARDANDO_VALIDACAO, PAGO
+  receiptUrl      String?     // Link/Arquivo do comprovante Pix
+  notes           String?     @db.Text
+  items           OrderItem[]
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  @@map("orders")
+}
+
+model OrderItem {
+  id          String   @id @default(uuid())
+  orderId     String
+  order       Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId   String?
+  product     Product? @relation(fields: [productId], references: [id])
+  kitId       String?
+  kit         Kit?     @relation(fields: [kitId], references: [id])
+  size        String?  // PP, P, M, G, GG, Unico
+  unitPrice   Float
+  quantity    Int      @default(1)
+
+  @@map("order_items")
+}
+
+model IdeaVote {
+  id             String   @id @default(uuid())
+  ideaId         String
+  idea           Idea     @relation(fields: [ideaId], references: [id], onDelete: Cascade)
+  voterName      String
+  voterPhone     String?
+  voterCourse    String?
+  intendsToBuy   Boolean  @default(false)
+  preferredSize  String?
+  createdAt      DateTime @default(now())
+
+  @@map("idea_votes")
+}
