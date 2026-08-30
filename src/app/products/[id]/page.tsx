@@ -29,6 +29,7 @@ import {
   Percent
 } from 'lucide-react';
 import Link from 'next/link';
+import { ImageUpload } from '@/components/ui/ImageUpload';
 
 export default function ProductDetailPage() {
   const params = useParams();
@@ -415,13 +416,10 @@ export default function ProductDetailPage() {
               </div>
 
               <div>
-                <label className="block font-semibold mb-1 text-zinc-400">URL da Imagem / Mockup</label>
-                <input
-                  type="url"
-                  placeholder="https://..."
+                <ImageUpload
                   value={coverImageUrl}
-                  onChange={(e) => setCoverImageUrl(e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg bg-secondary border border-border text-foreground focus:ring-2 focus:ring-primary/50 focus:outline-none font-mono"
+                  onChange={setCoverImageUrl}
+                  label="URL ou Upload da Imagem / Mockup"
                 />
               </div>
 

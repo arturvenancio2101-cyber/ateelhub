@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { X, Plus, Package } from 'lucide-react';
+import { ImageUpload } from '@/components/ui/ImageUpload';
 
 interface NewProductModalProps {
   isOpen: boolean;
@@ -15,6 +16,7 @@ export function NewProductModal({ isOpen, onClose, onSuccess }: NewProductModalP
   const [category, setCategory] = useState('Camiseta');
   const [status, setStatus] = useState('Briefing');
   const [description, setDescription] = useState('');
+  const [coverImageUrl, setCoverImageUrl] = useState('');
   const [fabricType, setFabricType] = useState('Algodão 100% Penteado');
   const [printTechnique, setPrintTechnique] = useState('Serigrafia / Silk-screen');
   const [supplierName, setSupplierName] = useState('');
@@ -47,6 +49,7 @@ export function NewProductModal({ isOpen, onClose, onSuccess }: NewProductModalP
           category,
           status,
           description,
+          coverImageUrl,
           fabricType,
           printTechnique,
           supplierName: supplierName || 'A definir',
@@ -64,6 +67,7 @@ export function NewProductModal({ isOpen, onClose, onSuccess }: NewProductModalP
         setSku('');
         setName('');
         setDescription('');
+        setCoverImageUrl('');
         setSupplierName('');
       } else {
         setError(json.error || 'Erro ao criar produto');
@@ -144,6 +148,12 @@ export function NewProductModal({ isOpen, onClose, onSuccess }: NewProductModalP
               required
             />
           </div>
+
+          <ImageUpload
+            value={coverImageUrl}
+            onChange={setCoverImageUrl}
+            label="Imagem do Mockup / Capa do Lote"
+          />
 
           <div className="grid grid-cols-2 gap-4">
             <div>
