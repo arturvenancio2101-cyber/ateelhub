@@ -15,6 +15,7 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
         const product = await tx.product.create({
           data: {
             name: item.title,
+            slug: item.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '') + '-' + Date.now(),
             sku: `ATL-${Math.random().toString(36).substring(2, 7).toUpperCase()}`,
             category: 'Outro',
             status: item.stage === 'QUOTATION' ? 'Cotação' : 'Design',
