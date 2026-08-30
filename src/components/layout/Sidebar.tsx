@@ -16,14 +16,16 @@ import {
   Truck,
   Receipt,
   Package,
-  Building
+  Building,
+  ShoppingBag
 } from 'lucide-react';
 
 const navigation = [
   { name: 'Dashboard Executivo', href: '/dashboard', icon: LayoutDashboard },
   { name: 'Central de Ideias', href: '/ideas', icon: Lightbulb },
   { name: 'Pipeline (Kanban)', href: '/pipeline', icon: Kanban },
-  { name: 'Catálogo de Produtos', href: '/products', icon: Layers },
+  { name: 'Catálogo & Preços', href: '/catalog', icon: ShoppingBag },
+  { name: 'Gestão de Produção (PLM)', href: '/products', icon: Layers },
   { name: 'Kits & Combos', href: '/kits', icon: Sparkles },
   { name: 'Controle de Estoque', href: '/inventory', icon: Package },
   { name: 'Pedidos & Financeiro', href: '/orders', icon: Receipt },
