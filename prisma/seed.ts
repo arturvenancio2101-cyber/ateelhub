@@ -267,6 +267,19 @@ async function main() {
     },
   });
 
+  console.log('Semeando usuário padrão (Atendimento)...');
+  const userPassword = await bcrypt.hash('membro123', 10);
+  await prisma.user.upsert({
+    where: { email: 'atendimento@ateel.com.br' },
+    update: {},
+    create: {
+      name: 'Membro Atendimento',
+      email: 'atendimento@ateel.com.br',
+      password: userPassword,
+      role: 'USER',
+    },
+  });
+
   console.log('Seed do ATEEL Products Hub concluído com sucesso!');
 }
 

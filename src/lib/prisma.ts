@@ -20,16 +20,7 @@ import {
   CreateOrderInput,
   CreateVoteInput
 } from '@/types/plm';
-import { 
-  INITIAL_PRODUCTS, 
-  INITIAL_IDEAS, 
-  INITIAL_CATEGORIES, 
-  INITIAL_SUPPLIERS, 
-  INITIAL_QUOTES,
-  INITIAL_KITS,
-  INITIAL_ORDERS,
-  INITIAL_VOTES
-} from './mock-data';
+// Remove import from mock-data to ensure we do not populate the DB with mock data
 
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
@@ -43,15 +34,14 @@ export const prisma =
 
 if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
 
-// Stores em memória para fallback resiliente
-let memoryProductsStore: Product[] = [...INITIAL_PRODUCTS];
-let memoryIdeasStore: Idea[] = [...INITIAL_IDEAS];
-let memoryCategoriesStore: Category[] = [...INITIAL_CATEGORIES];
-let memorySuppliersStore: Supplier[] = [...INITIAL_SUPPLIERS];
-let memoryQuotesStore: ProductQuote[] = [...INITIAL_QUOTES];
-let memoryKitsStore: Kit[] = [...INITIAL_KITS];
-let memoryOrdersStore: Order[] = [...INITIAL_ORDERS];
-let memoryVotesStore: IdeaVote[] = [...INITIAL_VOTES];
+let memoryProductsStore: Product[] = [];
+let memoryIdeasStore: Idea[] = [];
+let memoryCategoriesStore: Category[] = [];
+let memorySuppliersStore: Supplier[] = [];
+let memoryQuotesStore: ProductQuote[] = [];
+let memoryKitsStore: Kit[] = [];
+let memoryOrdersStore: Order[] = [];
+let memoryVotesStore: IdeaVote[] = [];
 
 export const ideaService = {
   async getAllIdeas(): Promise<Idea[]> {
