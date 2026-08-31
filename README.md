@@ -53,3 +53,14 @@ A plataforma conecta desde o brainstorming inicial de novos produtos até a entr
 ```bash
 git clone [https://github.com/arturvenancio2101-cyber/ateelhub.git](https://github.com/arturvenancio2101-cyber/ateelhub.git)
 cd ateelhub
+
+### 2. Instalar as dependências
+```bash
+npm install
+3. Configurar variáveis de ambienteCrie um arquivo .env na raiz do projeto com base nas chaves necessárias:Snippet de códigoDATABASE_URL="postgresql://postgres.[ID]:[SENHA]@[aws-0-sa-east-1.pooler.supabase.com:5432/postgres](https://aws-0-sa-east-1.pooler.supabase.com:5432/postgres)"
+NEXTAUTH_SECRET="seu-segredo-de-autenticacao"
+NEXTAUTH_URL="http://localhost:3000"
+4. Sincronizar o banco de dadosBashnpx prisma db push
+5. Executar o servidor de desenvolvimentoBashnpm run dev
+Abra http://localhost:3000 no seu navegador.👥 Permissões de AcessoPerfilAcesso👑 ADMINAcesso irrestrito a configurações, cadastro de cotações, edição de estoque, métricas financeiras e gestão de usuários.👤 USERVisualização de pedidos, baixa de retiradas, consulta ao catálogo e movimentação do Kanban.
+
