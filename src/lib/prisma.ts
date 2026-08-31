@@ -137,6 +137,55 @@ export const ideaService = {
       return memoryIdeasStore[index];
     }
     return null;
+  },
+
+  async updateIdea(id: string, input: Partial<CreateIdeaInput & { status?: string; productId?: string }>): Promise<Idea | null> {
+    try {
+      if (process.env.DATABASE_URL) {
+        const dbIdea = await prisma.idea.update({
+          where: { id },
+          data: {
+            ...(input.title !== undefined && { title: input.title }),
+            ...(input.category !== undefined && { category: input.category }),
+            ...(input.description !== undefined && { description: input.description }),
+            ...(input.imageUrl !== undefined && { imageUrl: input.imageUrl }),
+            ...(input.createdBy !== undefined && { createdBy: input.createdBy }),
+            ...(input.status !== undefined && { status: input.status }),
+            ...(input.productId !== undefined && { productId: input.productId }),
+          }
+        });
+        return dbIdea as unknown as Idea;
+      }
+    } catch (err) {
+      console.warn('Prisma updateIdea fallback.');
+    }
+
+    const index = memoryIdeasStore.findIndex(i => i.id === id);
+    if (index !== -1) {
+      memoryIdeasStore[index] = {
+        ...memoryIdeasStore[index],
+        ...input,
+        updatedAt: new Date().toISOString()
+      };
+      return memoryIdeasStore[index];
+    }
+    return null;
+  },
+
+  async deleteIdea(id: string): Promise<boolean> {
+    try {
+      if (process.env.DATABASE_URL) {
+        await prisma.idea.delete({ where: { id } });
+        return true;
+      }
+    } catch (err) {
+      console.warn('Prisma deleteIdea fallback.');
+    }
+
+    const initialLength = memoryIdeasStore.length;
+    memoryIdeasStore = memoryIdeasStore.filter(i => i.id !== id);
+    memoryVotesStore = memoryVotesStore.filter(v => v.ideaId !== id);
+    return memoryIdeasStore.length < initialLength;
   }
 };
 
