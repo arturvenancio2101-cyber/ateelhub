@@ -35,3 +35,23 @@ export async function POST(request: NextRequest) {
     );
   }
 }
+
+export async function DELETE(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const mode = searchParams.get('mode'); // 'all' or 'orphan'
+
+    if (mode === 'orphan') {
+      const count = await quoteService.deleteOrphanQuotes();
+      return NextResponse.json({ success: true, message: `${count} cotações órfãs foram removidas com sucesso!`, count });
+    }
+
+    await quoteService.deleteAllQuotes();
+    return NextResponse.json({ success: true, message: 'Todas as cotações foram zeradas com sucesso!' });
+  } catch (error: any) {
+    return NextResponse.json(
+      { success: false, error: 'Erro ao limpar cotações', details: error.message },
+      { status: 500 }
+    );
+  }
+}

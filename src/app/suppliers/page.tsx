@@ -293,6 +293,38 @@ export default function SuppliersPage() {
     }
   };
 
+  const handleClearAllQuotes = async () => {
+    if (!confirm('Tem certeza de que deseja apagar TODAS as cotações da planilha? Esta ação não poderá ser desfeita.')) return;
+    try {
+      const res = await fetch('/api/quotes?mode=all', { method: 'DELETE' });
+      const data = await res.json();
+      if (data.success) {
+        setQuotes([]);
+        alert('Todas as cotações foram removidas com sucesso.');
+      } else {
+        alert(data.error || 'Erro ao limpar cotações');
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleClearOrphanQuotes = async () => {
+    if (!confirm('Deseja remover as cotações referentes a produtos que já foram excluídos do catálogo?')) return;
+    try {
+      const res = await fetch('/api/quotes?mode=orphan', { method: 'DELETE' });
+      const data = await res.json();
+      if (data.success) {
+        alert(data.message || 'Cotações órfãs removidas!');
+        loadData();
+      } else {
+        alert(data.error || 'Erro ao limpar cotações órfãs');
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   // Import/Export Logic
   const handleExportCSV = (type: 'quotes' | 'suppliers') => {
     let headers: string[] = [];
@@ -528,6 +560,28 @@ export default function SuppliersPage() {
             <Plus className="w-3.5 h-3.5" />
             Fornecedor
           </button>
+
+          {activeTab === 'quotes' && (
+            <>
+              <button
+                onClick={handleClearOrphanQuotes}
+                className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-amber-500/10 border border-amber-500/30 text-xs font-semibold text-amber-400 hover:bg-amber-500/20 transition duration-150"
+                title="Remover cotações de produtos excluídos"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                Limpar Órfãs
+              </button>
+
+              <button
+                onClick={handleClearAllQuotes}
+                className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-rose-500/10 border border-rose-500/30 text-xs font-semibold text-rose-400 hover:bg-rose-500/20 transition duration-150"
+                title="Zerar todas as cotações da planilha"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                Zerar Cotações
+              </button>
+            </>
+          )}
 
           <button
             onClick={() => setShowQuoteModal(true)}

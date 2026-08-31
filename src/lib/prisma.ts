@@ -411,11 +411,30 @@ export const productService = {
   async deleteProduct(id: string): Promise<boolean> {
     try {
       if (process.env.DATABASE_URL) {
+        const product = await prisma.product.findUnique({ where: { id } });
+        if (product) {
+          await prisma.productQuote.deleteMany({
+            where: {
+              OR: [
+                { productName: { equals: product.name, mode: 'insensitive' } },
+                { productName: { equals: product.sku, mode: 'insensitive' } }
+              ]
+            }
+          });
+        }
         await prisma.product.delete({ where: { id } });
         return true;
       }
     } catch (err) {
       console.warn('Prisma deleteProduct fallback.');
+    }
+
+    const prod = memoryProductsStore.find(p => p.id === id);
+    if (prod) {
+      memoryQuotesStore = memoryQuotesStore.filter(
+        q => q.productName.toLowerCase() !== prod.name.toLowerCase() &&
+             q.productName.toLowerCase() !== prod.sku.toLowerCase()
+      );
     }
 
     const initialLength = memoryProductsStore.length;
@@ -716,6 +735,53 @@ export const quoteService = {
     const len = memoryQuotesStore.length;
     memoryQuotesStore = memoryQuotesStore.filter(q => q.id !== id);
     return memoryQuotesStore.length < len;
+  },
+
+  async deleteAllQuotes(): Promise<boolean> {
+    try {
+      if (process.env.DATABASE_URL) {
+        await prisma.productQuote.deleteMany();
+        return true;
+      }
+    } catch (err) {
+      console.warn('Prisma DB error in deleteAllQuotes.');
+    }
+    memoryQuotesStore = [];
+    return true;
+  },
+
+  async deleteOrphanQuotes(): Promise<number> {
+    let deletedCount = 0;
+    try {
+      if (process.env.DATABASE_URL) {
+        const allProducts = await prisma.product.findMany();
+        const productNames = new Set(allProducts.map(p => p.name.toLowerCase()));
+        const productSkus = new Set(allProducts.map(p => p.sku.toLowerCase()));
+
+        const allQuotes = await prisma.productQuote.findMany();
+        const orphanIds = allQuotes
+          .filter(q => !productNames.has(q.productName.toLowerCase()) && !productSkus.has(q.productName.toLowerCase()))
+          .map(q => q.id);
+
+        if (orphanIds.length > 0) {
+          const res = await prisma.productQuote.deleteMany({
+            where: { id: { in: orphanIds } }
+          });
+          deletedCount = res.count;
+        }
+        return deletedCount;
+      }
+    } catch (err) {
+      console.warn('Prisma DB error in deleteOrphanQuotes.');
+    }
+
+    const activeProductNames = new Set(memoryProductsStore.map(p => p.name.toLowerCase()));
+    const activeProductSkus = new Set(memoryProductsStore.map(p => p.sku.toLowerCase()));
+    const initialLen = memoryQuotesStore.length;
+    memoryQuotesStore = memoryQuotesStore.filter(
+      q => activeProductNames.has(q.productName.toLowerCase()) || activeProductSkus.has(q.productName.toLowerCase())
+    );
+    return initialLen - memoryQuotesStore.length;
   }
 };
 
