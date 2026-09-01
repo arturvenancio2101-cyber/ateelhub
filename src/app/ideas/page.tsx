@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { Idea, Category, IdeaVote } from '@/types/plm';
 import { 
   Lightbulb, 
@@ -22,7 +23,8 @@ import {
   Pencil,
   Trash2,
   Search,
-  AlertTriangle
+  AlertTriangle,
+  Folder
 } from 'lucide-react';
 import { ImageUpload } from '@/components/ui/ImageUpload';
 
@@ -343,13 +345,23 @@ export default function IdeasPage() {
           </p>
         </div>
 
-        <button
-          onClick={() => setShowAddForm(!showAddForm)}
-          className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-primary text-primary-foreground text-xs font-semibold hover:bg-primary/95 transition-all shadow"
-        >
-          <Plus className="w-4 h-4" />
-          <span>{showAddForm ? 'Fechar Formulário' : 'Sugerir Nova Ideia'}</span>
-        </button>
+        <div className="flex items-center gap-2">
+          <Link
+            href="/folders"
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-secondary border border-border text-foreground hover:bg-secondary/80 text-xs font-semibold transition-all"
+          >
+            <Folder className="w-4 h-4 text-amber-400" />
+            <span>Pastas de Exemplos</span>
+          </Link>
+
+          <button
+            onClick={() => setShowAddForm(!showAddForm)}
+            className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-primary text-primary-foreground text-xs font-semibold hover:bg-primary/95 transition-all shadow"
+          >
+            <Plus className="w-4 h-4" />
+            <span>{showAddForm ? 'Fechar Formulário' : 'Sugerir Nova Ideia'}</span>
+          </button>
+        </div>
       </div>
 
       {/* Suggestion Form */}

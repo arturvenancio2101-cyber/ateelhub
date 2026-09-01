@@ -318,3 +318,51 @@ export interface CreateKanbanItemInput {
   productId?: string;
 }
 
+export interface ProductFolder {
+  id: string;
+  name: string;
+  description?: string | null;
+  category: string;
+  color: string;
+  icon: string;
+  items?: FolderItem[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface FolderItem {
+  id: string;
+  folderId: string;
+  title: string;
+  description?: string | null;
+  imageUrl?: string | null;
+  tags?: string[] | null;
+  estimatedPrice?: string | null;
+  yearOrSeason?: string | null;
+  status: string;
+  notes?: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateFolderInput {
+  name: string;
+  description?: string;
+  category?: string;
+  color?: string;
+  icon?: string;
+}
+
+export interface CreateFolderItemInput {
+  folderId: string;
+  title: string;
+  description?: string;
+  imageUrl?: string;
+  tags?: string[];
+  estimatedPrice?: string;
+  yearOrSeason?: string;
+  status?: string;
+  notes?: string;
+}
+
+

@@ -274,3 +274,36 @@ enum Priority {
   HIGH
   URGENT
 }
+
+model ProductFolder {
+  id          String       @id @default(uuid())
+  name        String
+  description String?      @db.Text
+  category    String       @default("Geral")
+  color       String       @default("amber")
+  icon        String       @default("Folder")
+  items       FolderItem[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  @@map("product_folders")
+}
+
+model FolderItem {
+  id             String        @id @default(uuid())
+  folderId       String
+  folder         ProductFolder @relation(fields: [folderId], references: [id], onDelete: Cascade)
+  title          String
+  description    String?       @db.Text
+  imageUrl       String?
+  tags           Json?
+  estimatedPrice String?
+  yearOrSeason   String?
+  status         String        @default("Exemplo Realizado")
+  notes          String?       @db.Text
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  @@map("folder_items")
+}
+

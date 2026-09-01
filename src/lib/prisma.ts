@@ -18,7 +18,11 @@ import {
   IdeaVote,
   CreateKitInput,
   CreateOrderInput,
-  CreateVoteInput
+  CreateVoteInput,
+  ProductFolder,
+  FolderItem,
+  CreateFolderInput,
+  CreateFolderItemInput
 } from '@/types/plm';
 // Remove import from mock-data to ensure we do not populate the DB with mock data
 
@@ -42,6 +46,9 @@ let memoryQuotesStore: ProductQuote[] = [];
 let memoryKitsStore: Kit[] = [];
 let memoryOrdersStore: Order[] = [];
 let memoryVotesStore: IdeaVote[] = [];
+let memoryFoldersStore: ProductFolder[] = [];
+let memoryFolderItemsStore: FolderItem[] = [];
+
 
 export const ideaService = {
   async getAllIdeas(): Promise<Idea[]> {
@@ -1162,3 +1169,400 @@ export const ideaVoteService = {
     return newVote;
   }
 };
+
+const initialSampleFolders: ProductFolder[] = [
+  {
+    id: 'fld-samba',
+    name: 'Samba-Canção Históricos & Conceitos',
+    description: 'Exemplos de modelos já fabricados e conceitos de estampas de samba-canção para jogos e vendas.',
+    category: 'Vestuário',
+    color: 'amber',
+    icon: 'Shirt',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    items: [
+      {
+        id: 'fld-item-1',
+        folderId: 'fld-samba',
+        title: 'Samba-Canção Tigrão Estampa Neon 2023',
+        description: 'Modelo de cetim preto com tigre em ilustração neon cyan/magenta. 120 unidades vendidas no Intereng.',
+        imageUrl: 'https://images.unsplash.com/photo-1591195853828-11db59a44f6b?auto=format&fit=crop&q=80&w=400',
+        tags: ['Cetim', 'Neon', 'BestSeller'],
+        estimatedPrice: 'R$ 45,00',
+        yearOrSeason: '2023.2',
+        status: 'Exemplo Realizado',
+        notes: 'Feedback excelente dos alunos sobre a durabilidade do elastano no cós.',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      },
+      {
+        id: 'fld-item-2',
+        folderId: 'fld-samba',
+        title: 'Samba-Canção Tropical Floral ATEEL',
+        description: 'Conceito de estampa floral com folhagens e mascote Tigrão camuflado nas folhagens. Proposta para o lote de verão.',
+        imageUrl: 'https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?auto=format&fit=crop&q=80&w=400',
+        tags: ['Floral', 'Verão', 'Conceito'],
+        estimatedPrice: 'R$ 48,00',
+        yearOrSeason: 'Conceito 2025',
+        status: 'Conceito Guardado',
+        notes: 'Aguardando aprovação de mockup em HD.',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      }
+    ]
+  },
+  {
+    id: 'fld-tirantes',
+    name: 'Tirantes, Crachás & Porta-Copos',
+    description: 'Formatos de tirantes, abridores metálicos e porta-copos em neoprene fabricados nas gestões anteriores.',
+    category: 'Acessórios',
+    color: 'emerald',
+    icon: 'Sparkles',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    items: [
+      {
+        id: 'fld-item-3',
+        folderId: 'fld-tirantes',
+        title: 'Tirante 40mm Satinato + Passador de Metal',
+        description: 'Tirante extra largo com borracha reforçada para caneca de 850ml e abridor embutido na ponta metálica.',
+        imageUrl: 'https://images.unsplash.com/photo-1618354691373-d851c5c3a990?auto=format&fit=crop&q=80&w=400',
+        tags: ['Satinato', 'Abridor Metal', '40mm'],
+        estimatedPrice: 'R$ 15,00',
+        yearOrSeason: '2024.1',
+        status: 'Exemplo Realizado',
+        notes: 'Fornecedor: Brusque Brindes. MOQ 200un.',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      },
+      {
+        id: 'fld-item-4',
+        folderId: 'fld-tirantes',
+        title: 'Tirante Com LED Reativo à Música',
+        description: 'Ideia para festas noturnas da Atlética. Fita com micro fita LED azul alimentada por bateria moeda.',
+        imageUrl: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&q=80&w=400',
+        tags: ['Festa', 'LED', 'Inovação'],
+        estimatedPrice: 'R$ 22,00',
+        yearOrSeason: 'Inspiração 2025',
+        status: 'Referência Externa',
+        notes: 'Visto na Engenharia Poli USP.',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      }
+    ]
+  },
+  {
+    id: 'fld-inverno',
+    name: 'Casacos, Moletons & Parkas Intereng',
+    description: 'Modelos de moletons pesados, cortas-vento e jaquetas universitárias já lançadas ou em ideação.',
+    category: 'Outono/Inverno',
+    color: 'purple',
+    icon: 'Layers',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    items: [
+      {
+        id: 'fld-item-5',
+        folderId: 'fld-inverno',
+        title: 'Moletom Canguru Bicolor Laranja & Preto 350g',
+        description: 'Moletom pesado forrado com capuz duplo e bordado em 3D de alta densidade no peito.',
+        imageUrl: 'https://images.unsplash.com/photo-1556905055-8f358a7a47b2?auto=format&fit=crop&q=80&w=400',
+        tags: ['Bordado3D', '350g', 'FrioIntenso'],
+        estimatedPrice: 'R$ 160,00',
+        yearOrSeason: '2023.1',
+        status: 'Exemplo Realizado',
+        notes: 'Sucesso absoluto na fase de pré-vendas.',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      },
+      {
+        id: 'fld-item-6',
+        folderId: 'fld-inverno',
+        title: 'Jaqueta Corta-Vento Dupla Face Impermeável',
+        description: 'Lado A em tactel fosco bordado e Lado B em sublimação total com cordões refletivos.',
+        imageUrl: 'https://images.unsplash.com/photo-1544441893-675973e31985?auto=format&fit=crop&q=80&w=400',
+        tags: ['CortaVento', 'Impermeável', 'Refletivo'],
+        estimatedPrice: 'R$ 180,00',
+        yearOrSeason: 'Conceito Inverno',
+        status: 'Conceito Guardado',
+        notes: 'Requer cotação especial com MOQ de 50un.',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      }
+    ]
+  },
+  {
+    id: 'fld-canecas',
+    name: 'Canecas, Copos & Squeezes',
+    description: 'Linha de canecas de alumínio, térmicas e copos de acrílico da Atlética ATEEL.',
+    category: 'Merchandising',
+    color: 'blue',
+    icon: 'ShoppingBag',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    items: [
+      {
+        id: 'fld-item-7',
+        folderId: 'fld-canecas',
+        title: 'Caneca Alumínio 850ml Laranja Fosco ATEEL',
+        description: 'Pintura eletrostática fosca de alta aderência, com logo silk em 2 cores e tirante combinando.',
+        imageUrl: 'https://images.unsplash.com/photo-1577937927133-66ef06acdf18?auto=format&fit=crop&q=80&w=400',
+        tags: ['850ml', 'Alumínio', 'Eletrostática'],
+        estimatedPrice: 'R$ 38,00',
+        yearOrSeason: '2024.1',
+        status: 'Exemplo Realizado',
+        notes: 'Garante retenção de bebida gelada em eventos.',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      }
+    ]
+  }
+];
+
+export const folderService = {
+  async getAllFolders(): Promise<ProductFolder[]> {
+    try {
+      if (process.env.DATABASE_URL) {
+        let dbFolders = await prisma.productFolder.findMany({
+          include: { items: true },
+          orderBy: { createdAt: 'desc' }
+        });
+
+        if (dbFolders.length === 0) {
+          // Seed database with initial sample folders
+          for (const f of initialSampleFolders) {
+            await prisma.productFolder.create({
+              data: {
+                id: f.id,
+                name: f.name,
+                description: f.description,
+                category: f.category,
+                color: f.color,
+                icon: f.icon,
+                items: {
+                  create: (f.items || []).map(i => ({
+                    id: i.id,
+                    title: i.title,
+                    description: i.description,
+                    imageUrl: i.imageUrl,
+                    tags: i.tags || [],
+                    estimatedPrice: i.estimatedPrice,
+                    yearOrSeason: i.yearOrSeason,
+                    status: i.status,
+                    notes: i.notes
+                  }))
+                }
+              }
+            });
+          }
+          dbFolders = await prisma.productFolder.findMany({
+            include: { items: true },
+            orderBy: { createdAt: 'desc' }
+          });
+        }
+
+        return dbFolders as unknown as ProductFolder[];
+      }
+    } catch (err) {
+      console.warn('Prisma DB indisponível. Usando pastas em memória.');
+    }
+
+    if (memoryFoldersStore.length === 0) {
+      memoryFoldersStore = JSON.parse(JSON.stringify(initialSampleFolders));
+    }
+    return memoryFoldersStore;
+  },
+
+  async createFolder(input: CreateFolderInput): Promise<ProductFolder> {
+    const newId = `fld-${Date.now()}`;
+    const now = new Date().toISOString();
+    const newFolder: ProductFolder = {
+      id: newId,
+      name: input.name,
+      description: input.description || null,
+      category: input.category || 'Geral',
+      color: input.color || 'amber',
+      icon: input.icon || 'Folder',
+      items: [],
+      createdAt: now,
+      updatedAt: now
+    };
+
+    try {
+      if (process.env.DATABASE_URL) {
+        const dbFolder = await prisma.productFolder.create({
+          data: {
+            id: newFolder.id,
+            name: newFolder.name,
+            description: newFolder.description,
+            category: newFolder.category,
+            color: newFolder.color,
+            icon: newFolder.icon
+          },
+          include: { items: true }
+        });
+        return dbFolder as unknown as ProductFolder;
+      }
+    } catch (err) {
+      console.warn('Prisma createFolder fallback.');
+    }
+
+    memoryFoldersStore.unshift(newFolder);
+    return newFolder;
+  },
+
+  async updateFolder(id: string, input: Partial<CreateFolderInput>): Promise<ProductFolder | null> {
+    try {
+      if (process.env.DATABASE_URL) {
+        const updated = await prisma.productFolder.update({
+          where: { id },
+          data: {
+            ...(input.name && { name: input.name }),
+            ...(input.description !== undefined && { description: input.description }),
+            ...(input.category && { category: input.category }),
+            ...(input.color && { color: input.color }),
+            ...(input.icon && { icon: input.icon }),
+          },
+          include: { items: true }
+        });
+        return updated as unknown as ProductFolder;
+      }
+    } catch (err) {
+      console.warn('Prisma updateFolder fallback.');
+    }
+
+    const idx = memoryFoldersStore.findIndex(f => f.id === id);
+    if (idx !== -1) {
+      memoryFoldersStore[idx] = {
+        ...memoryFoldersStore[idx],
+        ...input,
+        updatedAt: new Date().toISOString()
+      };
+      return memoryFoldersStore[idx];
+    }
+    return null;
+  },
+
+  async deleteFolder(id: string): Promise<boolean> {
+    try {
+      if (process.env.DATABASE_URL) {
+        await prisma.productFolder.delete({ where: { id } });
+        return true;
+      }
+    } catch (err) {
+      console.warn('Prisma deleteFolder fallback.');
+    }
+
+    const initialLen = memoryFoldersStore.length;
+    memoryFoldersStore = memoryFoldersStore.filter(f => f.id !== id);
+    return memoryFoldersStore.length < initialLen;
+  },
+
+  async createFolderItem(input: CreateFolderItemInput): Promise<FolderItem> {
+    const newId = `fld-item-${Date.now()}`;
+    const now = new Date().toISOString();
+    const newItem: FolderItem = {
+      id: newId,
+      folderId: input.folderId,
+      title: input.title,
+      description: input.description || null,
+      imageUrl: input.imageUrl || null,
+      tags: input.tags || [],
+      estimatedPrice: input.estimatedPrice || null,
+      yearOrSeason: input.yearOrSeason || null,
+      status: input.status || 'Exemplo Realizado',
+      notes: input.notes || null,
+      createdAt: now,
+      updatedAt: now
+    };
+
+    try {
+      if (process.env.DATABASE_URL) {
+        const dbItem = await prisma.folderItem.create({
+          data: {
+            id: newItem.id,
+            folderId: newItem.folderId,
+            title: newItem.title,
+            description: newItem.description,
+            imageUrl: newItem.imageUrl,
+            tags: newItem.tags || [],
+            estimatedPrice: newItem.estimatedPrice,
+            yearOrSeason: newItem.yearOrSeason,
+            status: newItem.status,
+            notes: newItem.notes
+          }
+        });
+        return dbItem as unknown as FolderItem;
+      }
+    } catch (err) {
+      console.warn('Prisma createFolderItem fallback.');
+    }
+
+    const folder = memoryFoldersStore.find(f => f.id === input.folderId);
+    if (folder) {
+      if (!folder.items) folder.items = [];
+      folder.items.unshift(newItem);
+    }
+    return newItem;
+  },
+
+  async updateFolderItem(id: string, input: Partial<CreateFolderItemInput>): Promise<FolderItem | null> {
+    try {
+      if (process.env.DATABASE_URL) {
+        const dbItem = await prisma.folderItem.update({
+          where: { id },
+          data: {
+            ...(input.title && { title: input.title }),
+            ...(input.description !== undefined && { description: input.description }),
+            ...(input.imageUrl !== undefined && { imageUrl: input.imageUrl }),
+            ...(input.tags !== undefined && { tags: input.tags }),
+            ...(input.estimatedPrice !== undefined && { estimatedPrice: input.estimatedPrice }),
+            ...(input.yearOrSeason !== undefined && { yearOrSeason: input.yearOrSeason }),
+            ...(input.status !== undefined && { status: input.status }),
+            ...(input.notes !== undefined && { notes: input.notes }),
+          }
+        });
+        return dbItem as unknown as FolderItem;
+      }
+    } catch (err) {
+      console.warn('Prisma updateFolderItem fallback.');
+    }
+
+    for (const folder of memoryFoldersStore) {
+      if (folder.items) {
+        const idx = folder.items.findIndex(i => i.id === id);
+        if (idx !== -1) {
+          folder.items[idx] = {
+            ...folder.items[idx],
+            ...input,
+            updatedAt: new Date().toISOString()
+          };
+          return folder.items[idx];
+        }
+      }
+    }
+    return null;
+  },
+
+  async deleteFolderItem(id: string): Promise<boolean> {
+    try {
+      if (process.env.DATABASE_URL) {
+        await prisma.folderItem.delete({ where: { id } });
+        return true;
+      }
+    } catch (err) {
+      console.warn('Prisma deleteFolderItem fallback.');
+    }
+
+    let deleted = false;
+    for (const folder of memoryFoldersStore) {
+      if (folder.items) {
+        const initialLen = folder.items.length;
+        folder.items = folder.items.filter(i => i.id !== id);
+        if (folder.items.length < initialLen) deleted = true;
+      }
+    }
+    return deleted;
+  }
+};
+

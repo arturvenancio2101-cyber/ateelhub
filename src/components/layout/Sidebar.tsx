@@ -18,12 +18,14 @@ import {
   Receipt,
   Package,
   Building,
+  Folder,
   ShoppingBag
 } from 'lucide-react';
 
 const navigation = [
   { name: 'Dashboard Executivo', href: '/dashboard', icon: LayoutDashboard },
   { name: 'Central de Ideias', href: '/ideas', icon: Lightbulb },
+  { name: 'Pastas de Exemplos & Ideias', href: '/folders', icon: Folder },
   { name: 'Roadmap & Tarefas', href: '/roadmap', icon: Target },
   { name: 'Pipeline (Kanban)', href: '/pipeline', icon: Kanban },
   { name: 'Catálogo & Preços', href: '/catalog', icon: ShoppingBag },
